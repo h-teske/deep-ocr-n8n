@@ -34,7 +34,7 @@ As an n8n workflow user, I want to specify which fields should be extracted from
 **Acceptance Scenarios**:
 
 1. **Given** I have configured the Deep-OCR node with "structured" output format and specified fields "sender,amount,date", **When** I execute the workflow with an invoice document, **Then** the node returns a JSON object containing the requested fields with their extracted values
-2. **Given** I have configured the Deep-OCR node with "structured" output format but left the fields parameter empty, **When** I execute the workflow, **Then** the node either extracts all detectable fields or returns a clear message requesting field specification
+2. **Given** I have configured the Deep-OCR node with "structured" output format but left the fields parameter empty, **When** I execute the workflow, **Then** the node extracts all detectable fields from the document and returns them as a JSON object
 3. **Given** I have specified fields that don't exist in the document, **When** I execute the workflow, **Then** the node returns null or empty values for those fields without failing the entire extraction
 
 ---
@@ -78,6 +78,25 @@ As an n8n workflow user, I want to securely configure my Deep-OCR API credential
 - **FR-009**: System MUST provide descriptive error messages for authentication failures, invalid files, and API errors
 - **FR-010**: System MUST implement n8n credential management for secure API key storage
 
+### n8n Community Node Verification Requirements (NON-NEGOTIABLE)
+
+These requirements are mandatory for n8n verification eligibility:
+
+- **VR-001**: Package MUST be created using the `n8n-node` tool to ensure proper file structure and metadata
+- **VR-002**: Package MUST have npm repository URL matching the GitHub repository
+- **VR-003**: Package author/maintainer MUST match between npm and GitHub repository
+- **VR-004**: Repository MUST be public with working git link from npm
+- **VR-005**: Package MUST include MIT license
+- **VR-006**: Package MUST have zero external dependencies (no dependencies in package.json)
+- **VR-007**: Code MUST NOT access environment variables (process.env)
+- **VR-008**: Code MUST NOT read/write to file system (fs module)
+- **VR-009**: All data MUST be passed through node parameters only
+- **VR-010**: Package MUST pass n8n linter: `npx @n8n/scan-community-package n8n-nodes-deep-ocr`
+- **VR-011**: All interface text MUST be in English only (parameters, descriptions, help text, errors)
+- **VR-012**: README MUST include usage instructions, example workflows, and authentication details
+- **VR-013**: Code MUST follow TypeScript and n8n node development guidelines
+- **VR-014**: Code MUST implement proper error handling and validation
+
 ### Key Entities
 
 - **Deep-OCR Credentials**: Stores the API key for authentication; used by the node to authorize requests
@@ -95,6 +114,8 @@ As an n8n workflow user, I want to securely configure my Deep-OCR API credential
 - **SC-004**: Node parameters and behavior are consistent with n8n UX conventions (matching other community nodes)
 - **SC-005**: OCR operations complete within 30 seconds for standard document sizes (under 10MB)
 - **SC-006**: Users can switch between text and structured output formats and immediately see relevant parameter changes
+- **SC-007**: Package passes `npx @n8n/scan-community-package` linter with zero errors
+- **SC-008**: Package has zero external dependencies in package.json
 
 ## Assumptions
 
