@@ -16,7 +16,7 @@ uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 
 # Verify Specify installation
 echo "✅ Verifying Specify CLI installation..."
-$HOME/.local/bin/specify --version || echo "Specify installed successfully"
+$HOME/.local/bin/specify --version && echo "Specify installed successfully" || echo "Warning: Specify installation may have failed"
 
 # Install Node.js dependencies if package.json exists
 if [ -f "package.json" ]; then
