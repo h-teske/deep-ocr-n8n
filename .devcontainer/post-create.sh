@@ -12,7 +12,7 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # Install Specify CLI from GitHub Spec-kit
 echo "📋 Installing GitHub Spec-kit (Specify CLI)..."
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+$HOME/.local/bin/uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 
 # Verify Specify installation
 echo "✅ Verifying Specify CLI installation..."
