@@ -17,14 +17,21 @@
 
 **ALWAYS use the pull request template when creating PRs:**
 
-1. When using `gh pr create`, ALWAYS use `--fill` flag to use the template:
+1. **Creating a PR**: Read `.github/pull_request_template.md` and use its structure for the PR body:
    ```bash
-   gh pr create --fill
+   gh pr create --title "feat: description" --body "$(cat .github/pull_request_template.md)"
    ```
+   Then edit the PR body to fill in all sections properly.
 
-2. NEVER create a PR without the template structure from `.github/pull_request_template.md`
+2. **Alternative**: Create PR interactively and paste the template content:
+   ```bash
+   gh pr create
+   ```
+   When prompted for body, include the full template structure.
 
-3. Fill out ALL sections of the PR template:
+3. NEVER create a PR without the template structure from `.github/pull_request_template.md`
+
+4. Fill out ALL sections of the PR template:
    - Description
    - Type of Change (check appropriate boxes)
    - Changes Made (list all changes)
