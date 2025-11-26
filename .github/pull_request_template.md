@@ -21,27 +21,27 @@ Brief description of the changes in this PR.
 - [ ] I have added tests for new functionality (if applicable)
 - [ ] The API still responds correctly to test requests
 
-## API Impact
-- [ ] No API changes
-- [ ] New endpoints added
-- [ ] Existing endpoints modified (specify which ones)
-- [ ] New prompts added (specify which ones)
+## Node Functionality
+- [ ] Node operations and parameters are clearly described
+- [ ] Node icon, name, and description are appropriate
+- [ ] Credentials and authentication (if applicable) are handled correctly
 
-## Container Build
-- [ ] Docker build tested locally
-- [ ] No breaking changes to container interface
-- [ ] Environment variables documented (if new ones added)
+## n8n Compatibility
+- [ ] Node works with the latest n8n version
+- [ ] Node follows n8n community node guidelines
+- [ ] No breaking changes to existing workflows
+
+## Node Testing
+- [ ] Node tested locally in n8n
+- [ ] All new/updated functionality covered by tests (if applicable)
+- [ ] Example workflows provided (if applicable)
 
 ## Documentation
 - [ ] README.md updated (if needed)
-- [ ] API documentation updated (if needed)
-- [ ] New prompts documented (if applicable)
-
-## Deployment Notes
-Any special considerations for deployment?
+- [ ] Node usage and parameters documented
 
 ## Screenshots/Examples
-If applicable, add screenshots or example API responses.
+If applicable, add screenshots or example node executions.
 
 ---
 
