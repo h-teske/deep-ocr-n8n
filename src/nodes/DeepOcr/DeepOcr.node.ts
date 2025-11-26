@@ -7,6 +7,12 @@ import type {
   JsonObject,
 } from 'n8n-workflow';
 import { NodeApiError, NodeOperationError } from 'n8n-workflow';
+import {
+  isValidMimeType,
+  isValidFileSize,
+  createFileTypeError,
+  createFileSizeError,
+} from '../../utils/errors';
 
 /**
  * Response structure from the Deep-OCR API
@@ -94,15 +100,6 @@ export class DeepOcr implements INodeType {
     const items = this.getInputData();
     const returnData: INodeExecutionData[] = [];
 
-    const allowedMimeTypes = [
-      'application/pdf',
-      'image/png',
-      'image/jpeg',
-      'image/jpg',
-      'image/webp',
-    ];
-    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
       try {
         const binaryPropertyName = this.getNodeParameter('binaryPropertyName', itemIndex, 'data');
@@ -111,25 +108,17 @@ export class DeepOcr implements INodeType {
         // Get binary data
         const binaryData = this.helpers.assertBinaryData(itemIndex, binaryPropertyName);
 
-        // Validate MIME type
-        if (binaryData.mimeType !== undefined && !allowedMimeTypes.includes(binaryData.mimeType)) {
-          throw new NodeOperationError(
-            this.getNode(),
-            `Unsupported file type: ${binaryData.mimeType}. Supported types: PDF, PNG, JPG, JPEG, WebP`,
-            { itemIndex },
-          );
+        // Validate MIME type using utility function
+        if (!isValidMimeType(binaryData.mimeType)) {
+          throw createFileTypeError(this.getNode(), binaryData.mimeType ?? 'unknown', itemIndex);
         }
 
         // Get binary buffer
         const buffer = await this.helpers.getBinaryDataBuffer(itemIndex, binaryPropertyName);
 
-        // Validate file size (max 10MB)
-        if (buffer.length > maxSize) {
-          throw new NodeOperationError(
-            this.getNode(),
-            `File size (${Math.round(buffer.length / 1024 / 1024)}MB) exceeds maximum allowed size of 10MB`,
-            { itemIndex },
-          );
+        // Validate file size using utility function
+        if (!isValidFileSize(buffer.length)) {
+          throw createFileSizeError(this.getNode(), buffer.length, itemIndex);
         }
 
         // Build API request

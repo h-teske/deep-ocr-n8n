@@ -52,8 +52,8 @@ Based on plan.md structure:
 - [x] T011 Define node description metadata (displayName, name, icon, group, version, inputs, outputs) in nodes/DeepOcr/DeepOcr.node.ts
 - [x] T012 Create base DeepOcrApi.credentials.ts skeleton with ICredentialType interface in credentials/
 - [x] T013 Setup error handling utilities using NodeApiError and NodeOperationError patterns
-- [ ] T014 Verify build passes: `npm run build` compiles without errors
-- [ ] T015 Verify n8n linter passes: `npm run lint:n8n` with zero errors (VR-010)
+- [x] T014 Verify build passes: `npm run build` compiles without errors
+- [x] T015 Verify n8n linter passes: `npm run lint:n8n` with zero errors (VR-010)
 
 **Checkpoint**: Foundation ready - `npm run build` and `npm run lint:n8n` pass, node skeleton loads in n8n
 
@@ -79,7 +79,7 @@ Based on plan.md structure:
 - [x] T020 [US3] Implement IAuthenticateGeneric with Bearer token header in credentials/DeepOcrApi.credentials.ts
 - [x] T021 [US3] Add credential test request to validate API key in credentials/DeepOcrApi.credentials.ts
 - [x] T022 [US3] Add credentials reference to node description in nodes/DeepOcr/DeepOcr.node.ts
-- [ ] T023 [US3] Run tests and verify they PASS
+- [x] T023 [US3] Run tests and verify they PASS
 - [ ] T024 [US3] Manual test: Create credentials in n8n UI, verify secure storage
 
 **Checkpoint**: Credentials work independently - can create, save, and select Deep-OCR API credentials in n8n
@@ -115,7 +115,7 @@ Based on plan.md structure:
 - [x] T040 [US1] Implement text mode response handling (return { text: response }) in nodes/DeepOcr/DeepOcr.node.ts
 - [x] T041 [US1] Implement error handling with NodeApiError for API failures in nodes/DeepOcr/DeepOcr.node.ts
 - [x] T042 [US1] Implement continueOnFail() support for graceful error handling in nodes/DeepOcr/DeepOcr.node.ts
-- [ ] T043 [US1] Run tests and verify they PASS
+- [x] T043 [US1] Run tests and verify they PASS
 - [ ] T044 [US1] Manual test: Upload PDF in n8n, verify text extraction works
 
 **Checkpoint**: MVP complete - Full text extraction works independently with any supported document format
@@ -142,7 +142,7 @@ Based on plan.md structure:
 - [x] T051 [US2] Implement fields query parameter in API request construction in nodes/DeepOcr/DeepOcr.node.ts
 - [x] T052 [US2] Implement structured mode response handling (return JSON object) in nodes/DeepOcr/DeepOcr.node.ts
 - [x] T053 [US2] Handle empty fields case (API extracts all detectable fields automatically) in nodes/DeepOcr/DeepOcr.node.ts
-- [ ] T054 [US2] Run tests and verify they PASS
+- [x] T054 [US2] Run tests and verify they PASS
 - [ ] T055 [US2] Manual test: Upload invoice in n8n with fields, verify structured JSON output
 
 **Checkpoint**: Structured extraction works - can specify fields and receive JSON with extracted values
@@ -162,10 +162,10 @@ Based on plan.md structure:
 
 ### Verification & Quality Gates
 
-- [ ] T060 Run full test suite with coverage: `npm run test:coverage`
-- [ ] T061 Verify TypeScript strict mode compliance: `npm run build` with zero warnings
-- [ ] T062 Verify ESLint compliance: `npm run lint` with zero errors
-- [ ] T063 Run n8n community package linter: `npm run lint:n8n` (VR-010)
+- [x] T060 Run full test suite with coverage: `npm run test:coverage`
+- [x] T061 Verify TypeScript strict mode compliance: `npm run build` with zero warnings
+- [x] T062 Verify ESLint compliance: `npm run lint` with zero errors
+- [x] T063 Run n8n community package linter: `npm run lint:n8n` (VR-010)
 - [x] T064 Verify zero dependencies in package.json (VR-006)
 - [x] T065 Verify no process.env usage in source files (VR-007)
 - [x] T066 Verify no fs module usage in source files (VR-008)
