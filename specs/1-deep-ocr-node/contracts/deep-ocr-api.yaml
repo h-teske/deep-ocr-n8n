@@ -1,0 +1,184 @@
+openapi: 3.0.3
+info:
+  title: Deep-OCR API
+  description: |
+    OCR processing service API for document text extraction.
+    Used by the n8n Deep-OCR community node.
+  version: 1.0.0
+
+servers:
+  - url: https://api.deep-ocr.com
+    description: Production API
+
+security:
+  - BearerAuth: []
+
+paths:
+  /v1/ocr:
+    post:
+      summary: Process Document
+      description: |
+        Process a document with OCR and return extracted content.
+        Supports PDF, PNG, JPG, JPEG, and WebP file formats.
+      operationId: processDocument
+      tags:
+        - OCR
+      parameters:
+        - name: output_format
+          in: query
+          description: Output format for extracted content
+          required: false
+          schema:
+            type: string
+            enum: [text, structured]
+            default: text
+        - name: fields
+          in: query
+          description: |
+            Comma-separated list of fields to extract.
+            Only used when output_format is 'structured'.
+            Example: 'sender,amount,date'
+          required: false
+          schema:
+            type: string
+            example: "sender,amount,date"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Document file to process (PDF, PNG, JPG, JPEG, WebP)
+      responses:
+        "200":
+          description: Successful OCR extraction
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/TextResponse"
+                  - $ref: "#/components/schemas/StructuredResponse"
+              examples:
+                textMode:
+                  summary: Text output format
+                  value:
+                    text: "Invoice #12345\nDate: 2025-01-15\nAmount: $1,234.56"
+                structuredMode:
+                  summary: Structured output format
+                  value:
+                    sender: "Acme Corp"
+                    amount: "$1,234.56"
+                    date: "2025-01-15"
+        "401":
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                detail: "Invalid or missing API key"
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                detail: "Rate limit exceeded. Try again in 60 seconds."
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                detail: "OCR processing failed"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: API key passed as Bearer token in Authorization header
+
+  schemas:
+    TextResponse:
+      type: object
+      description: Response when output_format is 'text'
+      properties:
+        text:
+          type: string
+          description: Full extracted text content from document
+      required:
+        - text
+      example:
+        text: "Invoice #12345\nDate: 2025-01-15\nAmount: $1,234.56\nFrom: Acme Corp"
+
+    StructuredResponse:
+      type: object
+      description: Response when output_format is 'structured'
+      additionalProperties:
+        type: string
+      example:
+        sender: "Acme Corp"
+        amount: "$1,234.56"
+        date: "2025-01-15"
+        invoice_number: "12345"
+
+    ValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                    - type: integer
+                description: Location of the error
+              msg:
+                type: string
+                description: Human-readable error message
+              type:
+                type: string
+                description: Error type identifier
+            required:
+              - loc
+              - msg
+              - type
+      example:
+        detail:
+          - loc: ["body", "file"]
+            msg: "field required"
+            type: "value_error.missing"
+
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Error message
+      required:
+        - detail
+      example:
+        detail: "An error occurred"
+
+tags:
+  - name: OCR
+    description: Document OCR processing operations
