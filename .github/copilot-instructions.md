@@ -12,7 +12,24 @@
 - **Never commit directly to the `main` branch**
 - Always create a feature branch for changes (e.g., `feature/add-ocr-endpoint`, `fix/error-handling`)
 - Branch naming convention: `feature/`, `fix/`, `docs/`, `refactor/`, `test/`
-- Use the pull request template at `.github/pull_request_template.md` for all PRs
+
+### Pull Request Requirements (MANDATORY)
+
+**ALWAYS use the pull request template when creating PRs:**
+
+1. When using `gh pr create`, ALWAYS use `--fill` flag to use the template:
+   ```bash
+   gh pr create --fill
+   ```
+
+2. NEVER create a PR without the template structure from `.github/pull_request_template.md`
+
+3. Fill out ALL sections of the PR template:
+   - Description
+   - Type of Change (check appropriate boxes)
+   - Changes Made (list all changes)
+   - Testing (confirm testing was done)
+   - All other applicable sections
 
 ## Project Context
 
