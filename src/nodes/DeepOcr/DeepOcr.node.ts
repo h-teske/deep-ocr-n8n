@@ -148,7 +148,7 @@ export class DeepOcr implements INodeType {
           'deepOcrApi',
           {
             method: 'POST',
-            url: 'https://api.deep-ocr.com/v1/ocr',
+            url: 'https://api.deep-ocr.com/v1/process',
             body: formData,
             headers: {
               'Content-Type': 'multipart/form-data',

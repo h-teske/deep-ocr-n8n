@@ -1,0 +1,37 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "packageRules": [
+    {
+      "matchDepTypes": ["devDependencies"],
+      "matchPackageNames": ["typescript", "ts-jest", "@types/node", "@types/jest"],
+      "groupName": "TypeScript toolchain",
+      "automerge": true
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "matchPackageNames": [
+        "eslint",
+        "eslint-config-prettier",
+        "eslint-plugin-n8n-nodes-base",
+        "@typescript-eslint/eslint-plugin",
+        "@typescript-eslint/parser"
+      ],
+      "groupName": "ESLint",
+      "automerge": true
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "matchPackageNames": ["jest", "jest-mock-extended", "ts-jest"],
+      "groupName": "Jest",
+      "automerge": true
+    },
+    {
+      "matchPackageNames": ["n8n-workflow", "n8n-core"],
+      "groupName": "n8n",
+      "automerge": false
+    }
+  ]
+}

@@ -43,7 +43,7 @@ export class DeepOcrApi implements ICredentialType {
   test: ICredentialTestRequest = {
     request: {
       baseURL: 'https://api.deep-ocr.com',
-      url: '/v1/health',
+      url: '/health',
       method: 'GET',
     },
   };
