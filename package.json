@@ -33,6 +33,7 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
+    "lint:n8n": "npx @n8n/scan-community-package n8n-nodes-deep-ocr",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
