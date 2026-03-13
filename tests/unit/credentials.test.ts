@@ -51,7 +51,7 @@ describe('DeepOcrApi Credentials', () => {
     });
 
     it('should test against health endpoint', () => {
-      expect(credentials.test.request.url).toBe('/v1/health');
+      expect(credentials.test.request.url).toBe('/health');
       expect(credentials.test.request.method).toBe('GET');
     });
 
