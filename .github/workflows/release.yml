@@ -76,7 +76,6 @@ jobs:
         run: npx @n8n/scan-community-package ./dist
 
       - name: Publish to npm
-        # --provenance required by n8n from 2026-05-01 (needs id-token: write)
+        # Trusted Publishing via OIDC — no NPM_TOKEN needed (id-token: write grants OIDC access)
+        # --provenance required by n8n from 2026-05-01
         run: pnpm publish --no-git-checks --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
