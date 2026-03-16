@@ -1,0 +1,89 @@
+{
+  "name": "n8n-nodes-deep-ocr",
+  "version": "1.0.4",
+  "description": "n8n community node for Deep-OCR document processing API",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "ocr",
+    "deep-ocr",
+    "document-processing",
+    "text-extraction",
+    "structured-data"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Heey-Global/deep-ocr-n8n",
+  "author": {
+    "name": "Heey"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Heey-Global/deep-ocr-n8n.git"
+  },
+  "engines": {
+    "node": ">=22.0",
+    "pnpm": ">=9.1"
+  },
+  "packageManager": "pnpm@10.32.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc && gulp build:icons && gulp build:codex",
+    "dev": "tsc --watch",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "lint:n8n": "npx @n8n/scan-community-package ./dist",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "prepublishOnly": "pnpm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/DeepOcrApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/DeepOcr/DeepOcr.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "eslint-plugin-n8n-nodes-base": "^1.16.0",
+    "gulp": "^5.0.0",
+    "jest": "^30.0.0",
+    "jest-mock-extended": "^4.0.0",
+    "n8n-core": "^2.0.0",
+    "n8n-workflow": "^2.0.0",
+    "prettier": "^3.2.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.4.0"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "^1.0.0 || ^2.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "form-data": ">=4.0.4",
+      "fast-xml-parser": ">=4.5.4",
+      "minimatch": ">=3.1.4 <11.0.0",
+      "braces": ">=3.0.3",
+      "micromatch": ">=4.0.8",
+      "axios": ">=1.13.6",
+      "ajv": ">=6.14.0 <9.0.0",
+      "jws": ">=3.2.3",
+      "qs": ">=6.14.1",
+      "lodash": ">=4.17.23"
+    }
+  }
+}
