@@ -2,7 +2,6 @@ const tsPlugin = require('@typescript-eslint/eslint-plugin');
 const tsParser = require('@typescript-eslint/parser');
 const { FlatCompat } = require('@eslint/eslintrc');
 const eslintConfigPrettier = require('eslint-config-prettier');
-const path = require('path');
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
