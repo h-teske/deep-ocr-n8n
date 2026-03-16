@@ -83,7 +83,7 @@ export function createApiError(
  * Validates MIME type against allowed types
  */
 export function isValidMimeType(mimeType: string | undefined): boolean {
-  if (mimeType === undefined || mimeType === null || mimeType.trim() === '') {
+  if (mimeType === undefined || mimeType.trim() === '') {
     return false; // Reject files with no declared MIME type
   }
   return ALLOWED_MIME_TYPES.includes(mimeType);
