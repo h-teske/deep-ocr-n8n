@@ -7,7 +7,7 @@ N8N Community Node for the [Deep-OCR Service](https://deep-ocr.com) - Extract st
 
 ## 🚀 Features
 
-- **Structured Data Extraction**: Receive a typed JSON object with the fields relevant to the document type
+- **Structured Data Extraction**: Receive a structured JSON object with the fields relevant to the document type
 - **7 Document Types**: Invoice, Receipt, Contract, Delivery Note, ID Document, Handwriting, Generic
 - **Multiple Format Support**: PDF, PNG, JPG, JPEG, WebP (up to 10MB)
 - **Secure Authentication**: API key stored securely using n8n credentials
