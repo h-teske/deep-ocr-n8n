@@ -1,14 +1,14 @@
 # n8n-nodes-deep-ocr
 
-N8N Community Node for the [Deep-OCR Service](https://deep-ocr.com) - Extract text and structured data from documents using AI-powered OCR.
+N8N Community Node for the [Deep-OCR Service](https://deep-ocr.com) - Extract structured data from documents using AI-powered OCR.
 
 [![npm version](https://badge.fury.io/js/n8n-nodes-deep-ocr.svg)](https://www.npmjs.com/package/n8n-nodes-deep-ocr)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## 🚀 Features
 
-- **Full Text Extraction**: Extract complete text content from documents
-- **Structured Data Extraction**: Specify fields to extract and receive JSON with those values
+- **Structured Data Extraction**: Receive a structured JSON object with the fields relevant to the document type
+- **7 Document Types**: Invoice, Receipt, Contract, Delivery Note, ID Document, Handwriting, Generic
 - **Multiple Format Support**: PDF, PNG, JPG, JPEG, WebP (up to 10MB)
 - **Secure Authentication**: API key stored securely using n8n credentials
 
@@ -38,24 +38,24 @@ npm install n8n-nodes-deep-ocr
 
 ## 📖 Usage
 
-### Extract Full Text
-
 1. Add the **Deep-OCR** node to your workflow
 2. Connect a node that provides binary data (e.g., Read Binary File, HTTP Request)
 3. Configure:
-   - **Binary Property**: Name of the property containing your document (default: `data`)
-   - **Output Format**: Select `Text`
-4. Execute to receive the extracted text
+   - **Binary Property**: Name of the binary property containing your document (default: `data`)
+   - **Document Type**: Select the type that matches your document
+4. Execute — the node outputs a JSON object with the extracted fields
 
-### Extract Structured Data
+### Document Types
 
-1. Add the **Deep-OCR** node to your workflow
-2. Connect a node that provides binary data
-3. Configure:
-   - **Binary Property**: Name of the property containing your document
-   - **Output Format**: Select `Structured`
-   - **Fields**: Comma-separated list of fields to extract (e.g., `sender, amount, date`)
-4. Execute to receive a JSON object with the extracted fields
+| Type | Description |
+|---|---|
+| `invoice` | Vendor, line items, totals, payment terms |
+| `receipt` | Merchant, items purchased, totals, payment method |
+| `contract` | Parties, dates, key clauses |
+| `delivery_note` | Sender, recipient, items, quantities |
+| `id_document` | Name, date of birth, document number, expiry |
+| `handwriting` | Transcription of handwritten text |
+| `generic` | General extraction for any document type |
 
 ## 📋 Example Workflow
 
@@ -74,8 +74,7 @@ npm install n8n-nodes-deep-ocr
       "type": "n8n-nodes-deep-ocr.deepOcr",
       "parameters": {
         "binaryPropertyName": "data",
-        "outputFormat": "structured",
-        "fields": "sender, recipient, amount, date, invoice_number"
+        "documentType": "invoice"
       }
     }
   ]
@@ -93,11 +92,9 @@ npm install n8n-nodes-deep-ocr
 
 ## 🛠️ Development
 
-This project was developed using [GitHub Spec-kit](https://github.com/github/spec-kit) (Spec-Driven Development).
-
 ### Prerequisites
 
-- Node.js 18.10+
+- Node.js 22+
 - pnpm 9.1+
 
 ### Setup
@@ -141,7 +138,7 @@ MIT
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read our contributing guidelines and submit pull requests to our repository.
+Contributions are welcome! Please submit pull requests to our [repository](https://github.com/Heey-Global/deep-ocr-n8n).
 
 ## 📞 Support
 
