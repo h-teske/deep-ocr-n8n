@@ -115,8 +115,8 @@ export class DeepOcr implements INodeType {
 
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
       try {
-        const binaryPropertyName = this.getNodeParameter('binaryPropertyName', itemIndex, 'data') as string;
-        const documentType = this.getNodeParameter('documentType', itemIndex, 'invoice') as string;
+        const binaryPropertyName = this.getNodeParameter('binaryPropertyName', itemIndex, 'data');
+        const documentType = this.getNodeParameter('documentType', itemIndex, 'invoice');
 
         // Get binary data
         const binaryData = this.helpers.assertBinaryData(itemIndex, binaryPropertyName);
