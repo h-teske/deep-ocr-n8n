@@ -56,29 +56,24 @@ describe('DeepOcr Node', () => {
       expect(prop?.required).toBe(true);
     });
 
-    it('should have outputFormat parameter', () => {
-      const prop = node.description.properties.find((p) => p.name === 'outputFormat');
+    it('should have documentType parameter defaulting to invoice', () => {
+      const prop = node.description.properties.find((p) => p.name === 'documentType');
       expect(prop).toBeDefined();
       expect(prop?.type).toBe('options');
-      expect(prop?.default).toBe('text');
+      expect(prop?.default).toBe('invoice');
     });
 
-    it('should have text and structured options for outputFormat', () => {
-      const prop = node.description.properties.find((p) => p.name === 'outputFormat');
+    it('should have all 7 document type options', () => {
+      const prop = node.description.properties.find((p) => p.name === 'documentType');
       const options = prop?.options as Array<{ value: string }>;
-      expect(options?.map((o) => o.value)).toContain('text');
-      expect(options?.map((o) => o.value)).toContain('structured');
-    });
-
-    it('should have fields parameter', () => {
-      const prop = node.description.properties.find((p) => p.name === 'fields');
-      expect(prop).toBeDefined();
-      expect(prop?.type).toBe('string');
-    });
-
-    it('should show fields only in structured mode', () => {
-      const prop = node.description.properties.find((p) => p.name === 'fields');
-      expect(prop?.displayOptions?.show?.outputFormat).toContain('structured');
+      const values = options?.map((o) => o.value);
+      expect(values).toContain('invoice');
+      expect(values).toContain('receipt');
+      expect(values).toContain('contract');
+      expect(values).toContain('id_document');
+      expect(values).toContain('delivery_note');
+      expect(values).toContain('handwriting');
+      expect(values).toContain('generic');
     });
   });
 
@@ -89,30 +84,67 @@ describe('DeepOcr Node', () => {
       mockExecuteFunctions = mockDeep<IExecuteFunctions>();
     });
 
-    it('should process items and return results', async () => {
+    it('should process invoice and return structured content', async () => {
       const inputItems: INodeExecutionData[] = [{ json: {} }];
       const binaryBuffer = Buffer.from('test pdf content');
 
       (mockExecuteFunctions.getInputData as jest.Mock).mockReturnValue(inputItems);
       (mockExecuteFunctions.getNodeParameter as jest.Mock)
-        .mockReturnValueOnce('data') // binaryPropertyName
-        .mockReturnValueOnce('text'); // outputFormat
+        .mockReturnValueOnce('data')
+        .mockReturnValueOnce('invoice');
       (mockExecuteFunctions.helpers.assertBinaryData as jest.Mock).mockReturnValue({
         mimeType: 'application/pdf',
-        fileName: 'test.pdf',
+        fileName: 'invoice.pdf',
       });
-      (mockExecuteFunctions.helpers.getBinaryDataBuffer as jest.Mock).mockResolvedValue(
-        binaryBuffer,
-      );
-      (mockExecuteFunctions.helpers.httpRequestWithAuthentication as jest.Mock).mockResolvedValue({
-        text: 'Extracted text content',
+      (mockExecuteFunctions.helpers.getBinaryDataBuffer as jest.Mock).mockResolvedValue(binaryBuffer);
+      (mockExecuteFunctions.helpers.requestWithAuthentication as jest.Mock).mockResolvedValue({
+        success: true,
+        filename: 'invoice.pdf',
+        document_type: 'invoice',
+        content: { invoice_number: 'INV-001', total: 119.0 },
+        metadata: { pages: 1, processing_time: 2.5 },
       });
 
       const result = await node.execute.call(mockExecuteFunctions);
 
-      expect(result).toBeDefined();
       expect(result[0]).toHaveLength(1);
-      expect(result[0][0].json.text).toBe('Extracted text content');
+      expect(result[0][0].json.invoice_number).toBe('INV-001');
+      expect(result[0][0].json.total).toBe(119.0);
+      expect(result[0][0].json.document_type).toBe('invoice');
+      expect(result[0][0].json.filename).toBe('invoice.pdf');
+    });
+
+    it('should send document_type as query param to /v1/ocr', async () => {
+      const inputItems: INodeExecutionData[] = [{ json: {} }];
+      const binaryBuffer = Buffer.from('test pdf content');
+
+      (mockExecuteFunctions.getInputData as jest.Mock).mockReturnValue(inputItems);
+      (mockExecuteFunctions.getNodeParameter as jest.Mock)
+        .mockReturnValueOnce('data')
+        .mockReturnValueOnce('receipt');
+      (mockExecuteFunctions.helpers.assertBinaryData as jest.Mock).mockReturnValue({
+        mimeType: 'image/png',
+        fileName: 'receipt.png',
+      });
+      (mockExecuteFunctions.helpers.getBinaryDataBuffer as jest.Mock).mockResolvedValue(binaryBuffer);
+      (mockExecuteFunctions.helpers.requestWithAuthentication as jest.Mock).mockResolvedValue({
+        success: true,
+        filename: 'receipt.png',
+        document_type: 'receipt',
+        content: { merchant: 'Supermarket', total: 42.5 },
+        metadata: { pages: 1 },
+      });
+
+      await node.execute.call(mockExecuteFunctions);
+
+      expect(mockExecuteFunctions.helpers.requestWithAuthentication).toHaveBeenCalledWith(
+        'deepOcrApi',
+        expect.objectContaining({
+          method: 'POST',
+          url: 'https://api.deep-ocr.com/v1/ocr',
+          qs: { document_type: 'receipt' },
+        }),
+      );
     });
 
     it('should validate file type', async () => {
@@ -121,7 +153,7 @@ describe('DeepOcr Node', () => {
       (mockExecuteFunctions.getInputData as jest.Mock).mockReturnValue(inputItems);
       (mockExecuteFunctions.getNodeParameter as jest.Mock)
         .mockReturnValueOnce('data')
-        .mockReturnValueOnce('text');
+        .mockReturnValueOnce('invoice');
       (mockExecuteFunctions.helpers.assertBinaryData as jest.Mock).mockReturnValue({
         mimeType: 'text/plain',
         fileName: 'test.txt',
@@ -129,32 +161,26 @@ describe('DeepOcr Node', () => {
       (mockExecuteFunctions.continueOnFail as jest.Mock).mockReturnValue(false);
       (mockExecuteFunctions.getNode as jest.Mock).mockReturnValue({ name: 'Deep-OCR' });
 
-      await expect(node.execute.call(mockExecuteFunctions)).rejects.toThrow(
-        'Unsupported file type',
-      );
+      await expect(node.execute.call(mockExecuteFunctions)).rejects.toThrow('Unsupported file type');
     });
 
     it('should validate file size (max 10MB)', async () => {
       const inputItems: INodeExecutionData[] = [{ json: {} }];
-      const largeBuffer = Buffer.alloc(11 * 1024 * 1024); // 11MB
+      const largeBuffer = Buffer.alloc(11 * 1024 * 1024);
 
       (mockExecuteFunctions.getInputData as jest.Mock).mockReturnValue(inputItems);
       (mockExecuteFunctions.getNodeParameter as jest.Mock)
         .mockReturnValueOnce('data')
-        .mockReturnValueOnce('text');
+        .mockReturnValueOnce('invoice');
       (mockExecuteFunctions.helpers.assertBinaryData as jest.Mock).mockReturnValue({
         mimeType: 'application/pdf',
         fileName: 'large.pdf',
       });
-      (mockExecuteFunctions.helpers.getBinaryDataBuffer as jest.Mock).mockResolvedValue(
-        largeBuffer,
-      );
+      (mockExecuteFunctions.helpers.getBinaryDataBuffer as jest.Mock).mockResolvedValue(largeBuffer);
       (mockExecuteFunctions.continueOnFail as jest.Mock).mockReturnValue(false);
       (mockExecuteFunctions.getNode as jest.Mock).mockReturnValue({ name: 'Deep-OCR' });
 
-      await expect(node.execute.call(mockExecuteFunctions)).rejects.toThrow(
-        'exceeds maximum allowed size',
-      );
+      await expect(node.execute.call(mockExecuteFunctions)).rejects.toThrow('exceeds maximum allowed size');
     });
 
     it('should handle continueOnFail gracefully', async () => {
@@ -163,7 +189,7 @@ describe('DeepOcr Node', () => {
       (mockExecuteFunctions.getInputData as jest.Mock).mockReturnValue(inputItems);
       (mockExecuteFunctions.getNodeParameter as jest.Mock)
         .mockReturnValueOnce('data')
-        .mockReturnValueOnce('text');
+        .mockReturnValueOnce('invoice');
       (mockExecuteFunctions.helpers.assertBinaryData as jest.Mock).mockReturnValue({
         mimeType: 'text/plain',
         fileName: 'test.txt',
@@ -174,45 +200,6 @@ describe('DeepOcr Node', () => {
       const result = await node.execute.call(mockExecuteFunctions);
 
       expect(result[0][0].json.error).toBeDefined();
-    });
-
-    it('should include fields parameter in structured mode', async () => {
-      const inputItems: INodeExecutionData[] = [{ json: {} }];
-      const binaryBuffer = Buffer.from('test pdf content');
-
-      (mockExecuteFunctions.getInputData as jest.Mock).mockReturnValue(inputItems);
-      (mockExecuteFunctions.getNodeParameter as jest.Mock)
-        .mockReturnValueOnce('data') // binaryPropertyName
-        .mockReturnValueOnce('structured') // outputFormat
-        .mockReturnValueOnce('sender, amount, date'); // fields
-      (mockExecuteFunctions.helpers.assertBinaryData as jest.Mock).mockReturnValue({
-        mimeType: 'application/pdf',
-        fileName: 'invoice.pdf',
-      });
-      (mockExecuteFunctions.helpers.getBinaryDataBuffer as jest.Mock).mockResolvedValue(
-        binaryBuffer,
-      );
-      (mockExecuteFunctions.helpers.httpRequestWithAuthentication as jest.Mock).mockResolvedValue({
-        fields: { sender: 'Company A', amount: '100.00', date: '2025-01-01' },
-      });
-
-      const result = await node.execute.call(mockExecuteFunctions);
-
-      expect(
-        mockExecuteFunctions.helpers.httpRequestWithAuthentication,
-      ).toHaveBeenCalledWith(
-        'deepOcrApi',
-        expect.objectContaining({
-          body: expect.objectContaining({
-            fields: 'sender, amount, date',
-          }),
-        }),
-      );
-      expect(result[0][0].json).toEqual({
-        sender: 'Company A',
-        amount: '100.00',
-        date: '2025-01-01',
-      });
     });
   });
 });
