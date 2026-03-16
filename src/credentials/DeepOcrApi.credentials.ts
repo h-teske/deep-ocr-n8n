@@ -14,7 +14,6 @@ import type {
 export class DeepOcrApi implements ICredentialType {
   name = 'deepOcrApi';
   displayName = 'Deep-OCR API';
-  // eslint-disable-next-line n8n-nodes-base/cred-class-field-documentation-url-miscased
   documentationUrl = 'https://docs.deep-ocr.com';
 
   properties: INodeProperties[] = [

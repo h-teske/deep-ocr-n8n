@@ -16,19 +16,21 @@ import {
 
 /**
  * Response structure from the Deep-OCR API
+ * { success, filename, document_type, content, metadata }
  */
 interface OcrApiResponse {
-  text?: string;
-  content?: string;
-  fields?: IDataObject;
-  data?: IDataObject;
+  success?: boolean;
+  filename?: string;
+  document_type?: string;
+  content?: IDataObject;
+  metadata?: IDataObject;
   [key: string]: unknown;
 }
 
 /**
  * Deep-OCR Node
  *
- * Extract text and structured data from documents using the Deep-OCR API.
+ * Extract structured data from documents using the Deep-OCR API.
  * Supports PDF, PNG, JPG, JPEG, and WebP formats up to 10MB.
  */
 export class DeepOcr implements INodeType {
@@ -38,8 +40,8 @@ export class DeepOcr implements INodeType {
     icon: 'file:deepocr.svg',
     group: ['transform'],
     version: 1,
-    subtitle: '={{$parameter["outputFormat"]}}',
-    description: 'Extract text and structured data from documents using Deep-OCR API',
+    subtitle: '={{$parameter["documentType"]}}',
+    description: 'Extract structured data from documents using Deep-OCR API',
     defaults: {
       name: 'Deep-OCR',
     },
@@ -61,37 +63,48 @@ export class DeepOcr implements INodeType {
         description: 'Name of the binary property containing the document to process',
       },
       {
-        displayName: 'Output Format',
-        name: 'outputFormat',
+        displayName: 'Document Type',
+        name: 'documentType',
         type: 'options',
         options: [
           {
-            name: 'Text',
-            value: 'text',
-            description: 'Extract full text content from the document',
+            name: 'Contract',
+            value: 'contract',
+            description: 'Extract parties, terms, and obligations from contracts',
           },
           {
-            name: 'Structured',
-            value: 'structured',
-            description: 'Extract specific fields as JSON object',
+            name: 'Delivery Note',
+            value: 'delivery_note',
+            description: 'Extract items, quantities, and delivery info from delivery notes',
+          },
+          {
+            name: 'Generic',
+            value: 'generic',
+            description: 'Extract all detectable content from any document',
+          },
+          {
+            name: 'Handwriting',
+            value: 'handwriting',
+            description: 'Transcribe handwritten text',
+          },
+          {
+            name: 'ID Document',
+            value: 'id_document',
+            description: 'Extract personal data from passports and ID cards',
+          },
+          {
+            name: 'Invoice',
+            value: 'invoice',
+            description: 'Extract vendor, line items, totals, and payment terms from invoices',
+          },
+          {
+            name: 'Receipt',
+            value: 'receipt',
+            description: 'Extract merchant, items, and totals from receipts',
           },
         ],
-        default: 'text',
-        description: 'How to format the extracted data',
-      },
-      {
-        displayName: 'Fields',
-        name: 'fields',
-        type: 'string',
-        default: '',
-        displayOptions: {
-          show: {
-            outputFormat: ['structured'],
-          },
-        },
-        placeholder: 'sender, amount, date',
-        description:
-          'Comma-separated list of fields to extract. Leave empty to auto-detect all fields.',
+        default: 'invoice',
+        description: 'Type of document — determines the extraction schema',
       },
     ],
   };
@@ -102,13 +115,13 @@ export class DeepOcr implements INodeType {
 
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
       try {
-        const binaryPropertyName = this.getNodeParameter('binaryPropertyName', itemIndex, 'data');
-        const outputFormat = this.getNodeParameter('outputFormat', itemIndex, 'text');
+        const binaryPropertyName = this.getNodeParameter('binaryPropertyName', itemIndex, 'data') as string;
+        const documentType = this.getNodeParameter('documentType', itemIndex, 'invoice') as string;
 
         // Get binary data
         const binaryData = this.helpers.assertBinaryData(itemIndex, binaryPropertyName);
 
-        // Validate MIME type using utility function
+        // Validate MIME type
         if (!isValidMimeType(binaryData.mimeType)) {
           throw createFileTypeError(this.getNode(), binaryData.mimeType ?? 'unknown', itemIndex);
         }
@@ -116,40 +129,28 @@ export class DeepOcr implements INodeType {
         // Get binary buffer
         const buffer = await this.helpers.getBinaryDataBuffer(itemIndex, binaryPropertyName);
 
-        // Validate file size using utility function
+        // Validate file size
         if (!isValidFileSize(buffer.length)) {
           throw createFileSizeError(this.getNode(), buffer.length, itemIndex);
         }
 
-        // Build API request
-        const formData: Record<string, unknown> = {
-          file: {
-            value: buffer,
-            options: {
-              filename: binaryData.fileName ?? 'document',
-              contentType: binaryData.mimeType ?? 'application/octet-stream',
-            },
-          },
-          output_format: outputFormat,
-        };
-
-        // Add fields parameter for structured mode
-        if (outputFormat === 'structured') {
-          const fields = this.getNodeParameter('fields', itemIndex, '') as string;
-          const trimmedFields = fields.trim();
-          if (trimmedFields.length > 0) {
-            formData.fields = trimmedFields;
-          }
-        }
-
-        // Make API request
+        // Make API request — document_type as query param, file as multipart
         const response = (await this.helpers.httpRequestWithAuthentication.call(
           this,
           'deepOcrApi',
           {
             method: 'POST',
-            url: 'https://api.deep-ocr.com/v1/process',
-            body: formData,
+            url: 'https://api.deep-ocr.com/v1/ocr',
+            qs: { document_type: documentType },
+            body: {
+              file: {
+                value: buffer,
+                options: {
+                  filename: binaryData.fileName ?? 'document',
+                  contentType: binaryData.mimeType ?? 'application/octet-stream',
+                },
+              },
+            },
             headers: {
               'Content-Type': 'multipart/form-data',
             },
@@ -157,30 +158,22 @@ export class DeepOcr implements INodeType {
           },
         )) as OcrApiResponse;
 
-        // Transform response based on output format
-        if (outputFormat === 'text') {
-          const textContent = response.text ?? response.content ?? '';
-          returnData.push({
-            json: {
-              text: textContent,
-            },
-            pairedItem: { item: itemIndex },
-          });
-        } else {
-          // Structured format - return the extracted fields
-          const structuredData: IDataObject = response.fields ?? response.data ?? (response as IDataObject);
-          returnData.push({
-            json: structuredData,
-            pairedItem: { item: itemIndex },
-          });
-        }
+        // API always returns structured JSON in response.content
+        const content: IDataObject = (response.content as IDataObject) ?? {};
+        returnData.push({
+          json: {
+            ...content,
+            filename: response.filename,
+            document_type: response.document_type,
+            metadata: response.metadata,
+          },
+          pairedItem: { item: itemIndex },
+        });
       } catch (error: unknown) {
         if (this.continueOnFail()) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
           returnData.push({
-            json: {
-              error: errorMessage,
-            },
+            json: { error: errorMessage },
             pairedItem: { item: itemIndex },
           });
           continue;

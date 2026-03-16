@@ -30,6 +30,7 @@ module.exports = {
     // n8n specific rules
     'n8n-nodes-base/node-class-description-credentials-name-unsuffixed': 'error',
     'n8n-nodes-base/node-class-description-display-name-unsuffixed-trigger-node': 'off',
+    'n8n-nodes-base/cred-class-field-documentation-url-miscased': 'off',
 
     // General code quality
     'no-console': 'warn',
