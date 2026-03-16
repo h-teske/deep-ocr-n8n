@@ -135,7 +135,9 @@ export class DeepOcr implements INodeType {
         }
 
         // Make API request — document_type as query param, file as multipart
-        const response = (await this.helpers.httpRequestWithAuthentication.call(
+        // requestWithAuthentication (request-library) is used because httpRequestWithAuthentication
+        // (IHttpRequestOptions) does not support the formData property for multipart uploads.
+        const response = (await this.helpers.requestWithAuthentication.call(
           this,
           'deepOcrApi',
           {
@@ -151,6 +153,7 @@ export class DeepOcr implements INodeType {
                 },
               },
             },
+            json: true,
           },
         )) as OcrApiResponse;
 

@@ -97,7 +97,7 @@ describe('DeepOcr Node', () => {
         fileName: 'invoice.pdf',
       });
       (mockExecuteFunctions.helpers.getBinaryDataBuffer as jest.Mock).mockResolvedValue(binaryBuffer);
-      (mockExecuteFunctions.helpers.httpRequestWithAuthentication as jest.Mock).mockResolvedValue({
+      (mockExecuteFunctions.helpers.requestWithAuthentication as jest.Mock).mockResolvedValue({
         success: true,
         filename: 'invoice.pdf',
         document_type: 'invoice',
@@ -127,7 +127,7 @@ describe('DeepOcr Node', () => {
         fileName: 'receipt.png',
       });
       (mockExecuteFunctions.helpers.getBinaryDataBuffer as jest.Mock).mockResolvedValue(binaryBuffer);
-      (mockExecuteFunctions.helpers.httpRequestWithAuthentication as jest.Mock).mockResolvedValue({
+      (mockExecuteFunctions.helpers.requestWithAuthentication as jest.Mock).mockResolvedValue({
         success: true,
         filename: 'receipt.png',
         document_type: 'receipt',
@@ -137,7 +137,7 @@ describe('DeepOcr Node', () => {
 
       await node.execute.call(mockExecuteFunctions);
 
-      expect(mockExecuteFunctions.helpers.httpRequestWithAuthentication).toHaveBeenCalledWith(
+      expect(mockExecuteFunctions.helpers.requestWithAuthentication).toHaveBeenCalledWith(
         'deepOcrApi',
         expect.objectContaining({
           method: 'POST',
