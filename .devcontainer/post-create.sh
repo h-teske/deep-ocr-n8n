@@ -5,7 +5,6 @@ echo "Setting up Deep-OCR N8N Node Development Environment..."
 
 # Enable corepack for pnpm management
 sudo corepack enable
-corepack prepare --activate
 
 # Install Node.js dependencies
 echo "Installing Node.js dependencies..."
