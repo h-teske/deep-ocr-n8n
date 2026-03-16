@@ -14,7 +14,7 @@ import type {
 export class DeepOcrApi implements ICredentialType {
   name = 'deepOcrApi';
   displayName = 'Deep-OCR API';
-  documentationUrl = 'https://docs.deep-ocr.com';
+  documentationUrl = 'https://deep-ocr.com';
 
   properties: INodeProperties[] = [
     {

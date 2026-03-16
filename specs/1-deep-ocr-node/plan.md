@@ -39,7 +39,7 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 | VR-001: n8n-node tool         | ✅ PLANNED | Use `npx n8n-node-dev new` for scaffolding    |
 | VR-002: npm/GitHub match      | ✅ PLANNED | Repository URL in package.json matches GitHub |
 | VR-003: Author match          | ✅ PLANNED | Consistent author in npm and GitHub           |
-| VR-004: Public repo           | ✅ PLANNED | h-teske/deep-ocr-n8n is public                |
+| VR-004: Public repo           | ✅ PLANNED | Heey-Global/deep-ocr-n8n is public                |
 | VR-005: MIT license           | ✅ PLANNED | LICENSE file with MIT                         |
 | VR-006: Zero dependencies     | ✅ PLANNED | Only peerDependencies for n8n-workflow        |
 | VR-007: No env vars           | ✅ PLANNED | All config via node parameters                |

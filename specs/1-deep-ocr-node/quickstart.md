@@ -18,7 +18,7 @@
 
 ```bash
 # Clone the repository (if not already done)
-git clone https://github.com/h-teske/deep-ocr-n8n.git
+git clone https://github.com/Heey-Global/deep-ocr-n8n.git
 cd deep-ocr-n8n
 
 # Switch to feature branch
@@ -65,10 +65,10 @@ deep-ocr-n8n/
   "version": "0.1.0",
   "description": "n8n community node for Deep-OCR service",
   "license": "MIT",
-  "homepage": "https://github.com/h-teske/deep-ocr-n8n",
+  "homepage": "https://github.com/Heey-Global/deep-ocr-n8n",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/h-teske/deep-ocr-n8n.git"
+    "url": "git+https://github.com/Heey-Global/deep-ocr-n8n.git"
   },
   "keywords": ["n8n", "n8n-community-node-package", "ocr", "document"],
   "main": "dist/index.js",

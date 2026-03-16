@@ -31,7 +31,7 @@ npm install n8n-nodes-deep-ocr
 
 ### Setting Up Credentials
 
-1. Get your API key from [Deep-OCR Dashboard](https://app.deep-ocr.com)
+1. Get your API key from [Deep-OCR Dashboard](https://deep-ocr.com)
 2. In n8n, go to **Credentials** → **Add Credential**
 3. Search for "Deep-OCR API"
 4. Enter your API key and save
@@ -146,4 +146,4 @@ Contributions are welcome! Please read our contributing guidelines and submit pu
 ## 📞 Support
 
 - [GitHub Issues](https://github.com/Heey-Global/deep-ocr-n8n/issues)
-- [Deep-OCR Documentation](https://docs.deep-ocr.com)
+- [Deep-OCR Documentation](https://deep-ocr.com)
