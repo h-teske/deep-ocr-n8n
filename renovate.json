@@ -3,7 +3,20 @@
   "extends": [
     "config:recommended"
   ],
+  "semanticCommits": "enabled",
   "packageRules": [
+    {
+      "matchUpdateTypes": ["patch"],
+      "semanticCommitType": "fix"
+    },
+    {
+      "matchUpdateTypes": ["minor"],
+      "semanticCommitType": "fix"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "semanticCommitType": "feat"
+    },
     {
       "matchDepTypes": ["devDependencies"],
       "matchPackageNames": ["typescript", "ts-jest", "@types/node", "@types/jest"],
