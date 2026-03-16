@@ -58,12 +58,12 @@ describe('Error Utilities', () => {
       expect(isValidMimeType('image/gif')).toBe(false);
     });
 
-    it('should return true for undefined MIME type', () => {
-      expect(isValidMimeType(undefined)).toBe(true);
+    it('should return false for undefined MIME type', () => {
+      expect(isValidMimeType(undefined)).toBe(false);
     });
 
-    it('should return true for empty string MIME type', () => {
-      expect(isValidMimeType('')).toBe(true);
+    it('should return false for empty string MIME type', () => {
+      expect(isValidMimeType('')).toBe(false);
     });
   });
 

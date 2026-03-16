@@ -183,6 +183,93 @@ describe('DeepOcr Node', () => {
       await expect(node.execute.call(mockExecuteFunctions)).rejects.toThrow('exceeds maximum allowed size');
     });
 
+    it('should reject invalid documentType from crafted workflow JSON', async () => {
+      const inputItems: INodeExecutionData[] = [{ json: {} }];
+
+      (mockExecuteFunctions.getInputData as jest.Mock).mockReturnValue(inputItems);
+      (mockExecuteFunctions.getNodeParameter as jest.Mock)
+        .mockReturnValueOnce('data')
+        .mockReturnValueOnce('malicious_type');
+      (mockExecuteFunctions.continueOnFail as jest.Mock).mockReturnValue(false);
+      (mockExecuteFunctions.getNode as jest.Mock).mockReturnValue({ name: 'Deep-OCR' });
+
+      await expect(node.execute.call(mockExecuteFunctions)).rejects.toThrow(
+        'Invalid document type: "malicious_type"',
+      );
+    });
+
+    it('should sanitize path-traversal sequences in filename', async () => {
+      const inputItems: INodeExecutionData[] = [{ json: {} }];
+      const binaryBuffer = Buffer.from('test pdf content');
+
+      (mockExecuteFunctions.getInputData as jest.Mock).mockReturnValue(inputItems);
+      (mockExecuteFunctions.getNodeParameter as jest.Mock)
+        .mockReturnValueOnce('data')
+        .mockReturnValueOnce('invoice');
+      (mockExecuteFunctions.helpers.assertBinaryData as jest.Mock).mockReturnValue({
+        mimeType: 'application/pdf',
+        fileName: '../../etc/passwd.pdf',
+      });
+      (mockExecuteFunctions.helpers.getBinaryDataBuffer as jest.Mock).mockResolvedValue(binaryBuffer);
+      (mockExecuteFunctions.helpers.requestWithAuthentication as jest.Mock).mockResolvedValue({
+        success: true,
+        filename: 'passwd.pdf',
+        document_type: 'invoice',
+        content: {},
+        metadata: {},
+      });
+
+      await node.execute.call(mockExecuteFunctions);
+
+      const callArgs = (mockExecuteFunctions.helpers.requestWithAuthentication as jest.Mock).mock.calls[0][1];
+      const sentFilename = callArgs.formData.file.options.filename as string;
+      expect(sentFilename).not.toContain('..');
+      expect(sentFilename).not.toContain('/');
+      expect(sentFilename).not.toContain('\\');
+    });
+
+    it('should throw on non-object API response', async () => {
+      const inputItems: INodeExecutionData[] = [{ json: {} }];
+      const binaryBuffer = Buffer.from('test pdf content');
+
+      (mockExecuteFunctions.getInputData as jest.Mock).mockReturnValue(inputItems);
+      (mockExecuteFunctions.getNodeParameter as jest.Mock)
+        .mockReturnValueOnce('data')
+        .mockReturnValueOnce('invoice');
+      (mockExecuteFunctions.helpers.assertBinaryData as jest.Mock).mockReturnValue({
+        mimeType: 'application/pdf',
+        fileName: 'test.pdf',
+      });
+      (mockExecuteFunctions.helpers.getBinaryDataBuffer as jest.Mock).mockResolvedValue(binaryBuffer);
+      (mockExecuteFunctions.helpers.requestWithAuthentication as jest.Mock).mockResolvedValue('not an object');
+      (mockExecuteFunctions.continueOnFail as jest.Mock).mockReturnValue(false);
+      (mockExecuteFunctions.getNode as jest.Mock).mockReturnValue({ name: 'Deep-OCR' });
+
+      await expect(node.execute.call(mockExecuteFunctions)).rejects.toThrow(
+        'Unexpected response format from Deep-OCR API',
+      );
+    });
+
+    it('should reject oversized file via metadata before loading buffer', async () => {
+      const inputItems: INodeExecutionData[] = [{ json: {} }];
+
+      (mockExecuteFunctions.getInputData as jest.Mock).mockReturnValue(inputItems);
+      (mockExecuteFunctions.getNodeParameter as jest.Mock)
+        .mockReturnValueOnce('data')
+        .mockReturnValueOnce('invoice');
+      (mockExecuteFunctions.helpers.assertBinaryData as jest.Mock).mockReturnValue({
+        mimeType: 'application/pdf',
+        fileName: 'huge.pdf',
+        fileSize: String(20 * 1024 * 1024), // 20MB in metadata
+      });
+      (mockExecuteFunctions.continueOnFail as jest.Mock).mockReturnValue(false);
+      (mockExecuteFunctions.getNode as jest.Mock).mockReturnValue({ name: 'Deep-OCR' });
+
+      await expect(node.execute.call(mockExecuteFunctions)).rejects.toThrow('exceeds maximum allowed size');
+      // Buffer should never have been loaded
+      expect(mockExecuteFunctions.helpers.getBinaryDataBuffer).not.toHaveBeenCalled();
+    });
+
     it('should handle continueOnFail gracefully', async () => {
       const inputItems: INodeExecutionData[] = [{ json: {} }];
 
