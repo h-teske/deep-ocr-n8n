@@ -6,7 +6,11 @@
   "semanticCommits": "enabled",
   "packageRules": [
     {
-      "matchUpdateTypes": ["patch", "minor"],
+      "matchUpdateTypes": ["patch"],
+      "semanticCommitType": "fix"
+    },
+    {
+      "matchUpdateTypes": ["minor"],
       "semanticCommitType": "fix"
     },
     {
