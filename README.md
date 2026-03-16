@@ -104,7 +104,7 @@ This project was developed using [GitHub Spec-kit](https://github.com/github/spe
 
 ```bash
 # Clone the repository
-git clone https://github.com/h-teske/deep-ocr-n8n.git
+git clone https://github.com/Heey-Global/deep-ocr-n8n.git
 cd deep-ocr-n8n
 
 # Install dependencies
@@ -145,5 +145,5 @@ Contributions are welcome! Please read our contributing guidelines and submit pu
 
 ## 📞 Support
 
-- [GitHub Issues](https://github.com/h-teske/deep-ocr-n8n/issues)
+- [GitHub Issues](https://github.com/Heey-Global/deep-ocr-n8n/issues)
 - [Deep-OCR Documentation](https://docs.deep-ocr.com)

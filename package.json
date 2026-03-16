@@ -12,13 +12,13 @@
     "structured-data"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/h-teske/deep-ocr-n8n",
+  "homepage": "https://github.com/Heey-Global/deep-ocr-n8n",
   "author": {
-    "name": "Deep-OCR n8n Node Contributors"
+    "name": "Heey"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/h-teske/deep-ocr-n8n.git"
+    "url": "https://github.com/Heey-Global/deep-ocr-n8n.git"
   },
   "engines": {
     "node": ">=22.0",
