@@ -17,7 +17,7 @@ describe('DeepOcrApi Credentials', () => {
     });
 
     it('should have documentation URL', () => {
-      expect(credentials.documentationUrl).toBe('https://docs.deep-ocr.com');
+      expect(credentials.documentationUrl).toBe('https://deep-ocr.com');
     });
 
     it('should have apiKey property', () => {
