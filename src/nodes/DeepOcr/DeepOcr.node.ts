@@ -14,6 +14,16 @@ import {
   createFileSizeError,
 } from '../../utils/errors';
 
+const ALLOWED_DOCUMENT_TYPES = [
+  'contract',
+  'delivery_note',
+  'generic',
+  'handwriting',
+  'id_document',
+  'invoice',
+  'receipt',
+] as const;
+
 /**
  * Response structure from the Deep-OCR API
  * { success, filename, document_type, content, metadata }
@@ -116,28 +126,52 @@ export class DeepOcr implements INodeType {
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
       try {
         const binaryPropertyName = this.getNodeParameter('binaryPropertyName', itemIndex, 'data');
-        const documentType = this.getNodeParameter('documentType', itemIndex, 'invoice');
+        const documentType = this.getNodeParameter('documentType', itemIndex, 'invoice') as string;
+
+        // Validate documentType against known values (guards against crafted workflow JSON)
+        if (!(ALLOWED_DOCUMENT_TYPES as readonly string[]).includes(documentType)) {
+          throw new NodeOperationError(
+            this.getNode(),
+            `Invalid document type: "${documentType}"`,
+            { itemIndex },
+          );
+        }
 
         // Get binary data
         const binaryData = this.helpers.assertBinaryData(itemIndex, binaryPropertyName);
 
-        // Validate MIME type
+        // Validate MIME type — reject undefined/empty to prevent silent bypass
         if (!isValidMimeType(binaryData.mimeType)) {
           throw createFileTypeError(this.getNode(), binaryData.mimeType ?? 'unknown', itemIndex);
         }
 
-        // Get binary buffer
+        // Early size check from metadata before loading the full buffer into memory (DoS prevention)
+        const metaSize = parseInt(binaryData.fileSize ?? '0', 10);
+        if (metaSize > 0 && !isValidFileSize(metaSize)) {
+          throw createFileSizeError(this.getNode(), metaSize, itemIndex);
+        }
+
+        // Load buffer
         const buffer = await this.helpers.getBinaryDataBuffer(itemIndex, binaryPropertyName);
 
-        // Validate file size
+        // Authoritative size check on actual buffer length
         if (!isValidFileSize(buffer.length)) {
           throw createFileSizeError(this.getNode(), buffer.length, itemIndex);
         }
 
+        // Sanitize filename to prevent path traversal sequences in multipart headers
+        const rawFilename = binaryData.fileName ?? 'document';
+        const safeFilename =
+          rawFilename
+            .replace(/\.\./g, '')
+            .replace(/[/\\]/g, '_')
+            .replace(/[<>:"|?*\x00-\x1f]/g, '')
+            .substring(0, 255) || 'document';
+
         // Make API request — document_type as query param, file as multipart
         // requestWithAuthentication (request-library) is used because httpRequestWithAuthentication
         // (IHttpRequestOptions) does not support the formData property for multipart uploads.
-        const response = (await this.helpers.requestWithAuthentication.call(
+        const rawResponse: unknown = await this.helpers.requestWithAuthentication.call(
           this,
           'deepOcrApi',
           {
@@ -148,14 +182,24 @@ export class DeepOcr implements INodeType {
               file: {
                 value: buffer,
                 options: {
-                  filename: binaryData.fileName ?? 'document',
-                  contentType: binaryData.mimeType ?? 'application/octet-stream',
+                  filename: safeFilename,
+                  contentType: binaryData.mimeType,
                 },
               },
             },
             json: true,
           },
-        )) as OcrApiResponse;
+        );
+
+        // Validate response structure before accessing fields
+        if (rawResponse === null || rawResponse === undefined || typeof rawResponse !== 'object') {
+          throw new NodeApiError(
+            this.getNode(),
+            { message: 'Unexpected response format from Deep-OCR API' } as JsonObject,
+            { itemIndex },
+          );
+        }
+        const response = rawResponse as OcrApiResponse;
 
         // API always returns structured JSON in response.content
         const content: IDataObject = (response.content as IDataObject) ?? {};
