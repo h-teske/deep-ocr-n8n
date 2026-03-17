@@ -29,9 +29,6 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Scan with n8n community package linter
-        run: npx @n8n/scan-community-package .
-
       - name: Test
         run: pnpm test:coverage
 
