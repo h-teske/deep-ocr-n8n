@@ -75,12 +75,10 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - name: Pack for scanning
-        id: pack_for_scan
-        run: echo "package_tgz=$(pnpm pack --quiet)" >> "$GITHUB_OUTPUT"
-
       - name: Scan with n8n community package linter
-        run: npx @n8n/scan-community-package "${{ steps.pack_for_scan.outputs.package_tgz }}"
+        run: |
+          tarball=$(pnpm pack 2>&1 | grep -oE '[^ ]+\.tgz' | tail -n 1)
+          npx @n8n/scan-community-package "$tarball"
 
       - name: Publish to npm
         # Trusted Publishing via OIDC — no NPM_TOKEN needed (id-token: write grants OIDC access)
