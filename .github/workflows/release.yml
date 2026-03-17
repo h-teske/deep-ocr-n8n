@@ -76,9 +76,7 @@ jobs:
         run: pnpm test
 
       - name: Scan with n8n community package linter
-        run: |
-          tarball=$(pnpm pack 2>&1 | grep -oE '[^ ]+\.tgz' | tail -n 1)
-          npx @n8n/scan-community-package "$tarball"
+        run: npx @n8n/scan-community-package .
 
       - name: Publish to npm
         # Trusted Publishing via OIDC — no NPM_TOKEN needed (id-token: write grants OIDC access)
