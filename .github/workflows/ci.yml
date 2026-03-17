@@ -30,7 +30,9 @@ jobs:
         run: pnpm build
 
       - name: Scan with n8n community package linter
-        run: npx @n8n/scan-community-package ./dist
+        run: |
+          tarball=$(pnpm pack 2>&1 | grep -oE '[^ ]+\.tgz' | tail -n 1)
+          npx @n8n/scan-community-package "$tarball"
 
       - name: Test
         run: pnpm test:coverage
