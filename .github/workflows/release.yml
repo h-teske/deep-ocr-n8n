@@ -75,8 +75,11 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: Pack for scanning
+        run: pnpm pack
+
       - name: Scan with n8n community package linter
-        run: npx @n8n/scan-community-package ./dist
+        run: npx @n8n/scan-community-package *.tgz
 
       - name: Publish to npm
         # Trusted Publishing via OIDC — no NPM_TOKEN needed (id-token: write grants OIDC access)
