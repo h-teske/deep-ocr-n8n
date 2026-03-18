@@ -1,14 +1,22 @@
-const tsPlugin = require('@typescript-eslint/eslint-plugin');
-const tsParser = require('@typescript-eslint/parser');
-const { FlatCompat } = require('@eslint/eslintrc');
-const eslintConfigPrettier = require('eslint-config-prettier');
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
+import { FlatCompat } from '@eslint/eslintrc';
+import eslintConfigPrettier from 'eslint-config-prettier';
+import communityNodesPlugin from '@n8n/eslint-plugin-community-nodes';
+import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const require = createRequire(import.meta.url);
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
   resolvePluginsRelativeTo: __dirname,
 });
 
-module.exports = [
+export default [
   {
     ignores: ['dist/**', 'node_modules/**'],
   },
@@ -17,6 +25,8 @@ module.exports = [
   ...tsPlugin.configs['flat/recommended-type-checked'],
   // Apply n8n-nodes-base via FlatCompat (legacy plugin without flat config support)
   ...compat.extends('plugin:n8n-nodes-base/nodes', 'plugin:n8n-nodes-base/credentials'),
+  // Apply n8n community nodes plugin (checks against published package rules)
+  communityNodesPlugin.configs.recommended,
   {
     files: ['src/**/*.ts'],
     languageOptions: {
@@ -39,6 +49,9 @@ module.exports = [
       'n8n-nodes-base/node-class-description-credentials-name-unsuffixed': 'error',
       'n8n-nodes-base/node-class-description-display-name-unsuffixed-trigger-node': 'off',
       'n8n-nodes-base/cred-class-field-documentation-url-miscased': 'off',
+      // no-credential-reuse parses compiled dist/*.js files and checks for `implements ICredentialType`,
+      // which TypeScript removes during compilation — causing false positives for all local credentials.
+      '@n8n/community-nodes/no-credential-reuse': 'off',
       // General code quality
       'no-console': 'warn',
       'prefer-const': 'error',
