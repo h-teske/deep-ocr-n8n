@@ -20,6 +20,10 @@ describe('DeepOcrApi Credentials', () => {
       expect(credentials.documentationUrl).toBe('https://deep-ocr.com');
     });
 
+    it('should have correct icon', () => {
+      expect(credentials.icon).toBe('file:../nodes/DeepOcr/deepocr.svg');
+    });
+
     it('should have apiKey property', () => {
       const apiKeyProperty = credentials.properties.find((p) => p.name === 'apiKey');
       expect(apiKeyProperty).toBeDefined();

@@ -57,6 +57,7 @@ export class DeepOcr implements INodeType {
     },
     inputs: ['main'],
     outputs: ['main'],
+    usableAsTool: true,
     credentials: [
       {
         name: 'deepOcrApi',
@@ -171,6 +172,7 @@ export class DeepOcr implements INodeType {
         // Make API request — document_type as query param, file as multipart
         // requestWithAuthentication (request-library) is used because httpRequestWithAuthentication
         // (IHttpRequestOptions) does not support the formData property for multipart uploads.
+        // eslint-disable-next-line @n8n/community-nodes/no-deprecated-workflow-functions -- httpRequestWithAuthentication (IHttpRequestOptions) does not support formData for multipart uploads
         const rawResponse: unknown = await this.helpers.requestWithAuthentication.call(
           this,
           'deepOcrApi',
