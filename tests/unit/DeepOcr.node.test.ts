@@ -45,6 +45,10 @@ describe('DeepOcr Node', () => {
       expect(credentialConfig).toBeDefined();
       expect(credentialConfig?.required).toBe(true);
     });
+
+    it('should be usable as tool', () => {
+      expect(node.description.usableAsTool).toBe(true);
+    });
   });
 
   describe('node properties', () => {

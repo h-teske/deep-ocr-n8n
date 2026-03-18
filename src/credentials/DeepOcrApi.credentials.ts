@@ -14,7 +14,7 @@ import type {
 export class DeepOcrApi implements ICredentialType {
   name = 'deepOcrApi';
   displayName = 'Deep-OCR API';
-  icon = 'file:deepocr.svg' as const;
+  icon = 'file:../nodes/DeepOcr/deepocr.svg' as const;
   documentationUrl = 'https://deep-ocr.com';
 
   properties: INodeProperties[] = [
